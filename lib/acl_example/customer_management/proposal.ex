@@ -1,9 +1,12 @@
 defmodule AclExample.CustomerManagement.Proposal do
   @behaviour AclExample.Crm.Translator
 
-  alias AclExample.Crm.Lead
-
   defstruct [:id, :external_id, :name]
+
+  alias AclExample.CustomerManagement.Proposal
+
+  alias AclExample.Crm.Lead
+  alias AclExample.Crm.Opportunity
 
   def to_crm(%Proposal{} = proposal) do
     with {:has_lead?, true} <- {:has_lead?, has_lead?(proposal)},
@@ -21,8 +24,10 @@ defmodule AclExample.CustomerManagement.Proposal do
   end
 
   def from_crm(%Lead{} = lead) do
+    %Proposal{}
   end
 
   def from_crm(%Opportunity{} = opportunity) do
+    %Proposal{}
   end
 end
