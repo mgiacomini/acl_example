@@ -1,28 +1,37 @@
 defmodule AclExample.Crm do
+  @moduledoc """
+  This module will be consumed by a phoenix controller that receive calls from Salesforce.
+  """
+
   alias AclExample.Crm.Lead
+  alias AclExample.Crm.Opportunity
 
-  alias AclExample.CustomerManagement
+  alias AclExample.CustomerManagement.Proposal
 
-  ## Calls from salesforce
-
-  def create_lead(%Lead{} = lead) do
-    lead
-    |> save()
+  def create_lead(%{} = attrs) do
+    struct!(Lead, attrs)
     |> Proposal.from_crm()
-    |> CustomerManagement.create_proposal_from_crm()
-
-    {:ok, attrs}
+    |> publish_event(:proposal_created)
   end
 
-  def update_lead(lead, attrs) do
-    {:ok, lead}
+  def update_lead(%Lead{} = lead, attrs) do
+    struct!(lead, attrs)
+    |> Proposal.from_crm()
+    |> publish_event(:proposal_updated)
   end
 
-  def find_lead_by_email(attrs) do
-    {:ok, attrs}
+  def create_opportunity(%{} = attrs) do
+    struct!(Opportunity, attrs)
+    |> Proposal.from_crm()
+    |> publish_event(:proposal_updated)
   end
 
-  def update_opportunity(opportunity, attrs) do
-    {:ok, opportunity}
+  def update_opportunity(%Opportunity{} = opportunity, attrs) do
+    struct!(opportunity, attrs)
+    |> Proposal.from_crm()
+    |> publish_event(:proposal_updated)
   end
+
+  defp publish_event(%Lead{} = lead, _event), do: {:ok, lead}
+  defp publish_event(%Opportunity{} = opportunity, _event), do: {:ok, opportunity}
 end

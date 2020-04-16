@@ -3,13 +3,21 @@ defmodule AclExample.CustomerManagement.Proposal do
 
   alias AclExample.Crm.Lead
 
-  defstruct [:id, :external_id]
+  defstruct [:id, :external_id, :name]
 
   def to_crm(%Proposal{} = proposal) do
-    # here need to know if we want to transform in lead or opportunity
-    # and return an sboject
+    with {:has_lead?, true} <- {:has_lead?, has_lead?(proposal)},
+         {:has_opportunity?, true} <- {:has_opportunity?, has_opportunity?(proposal)} do
+      %Opportunity{}
+    else
+      {:has_opportunity?, false} ->
+        # quando tem lead e não tem oportunidade, retorna um lead com id para atualizar
+        %Lead{id: 1}
 
-    %Lead{}
+      {:has_lead?, false} ->
+        # quando não tem nem lead, nem oportunidade, retorna um lead sem id para criar
+        %Lead{}
+    end
   end
 
   def from_crm(%Lead{} = lead) do
